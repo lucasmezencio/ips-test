@@ -1,0 +1,39 @@
+version: '3.5'
+
+services:
+  ips_test_nginx:
+    image: webdevops/php-nginx-dev:7.2
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - 80:80
+    environment:
+      WEB_DOCUMENT_ROOT: /var/www/html/public
+      WEB_PHP_TIMEOUT: 600
+      PHP_DEBUGGER: 'xdebug'
+      XDEBUG_REMOTE_AUTOSTART: 1
+      XDEBUG_REMOTE_CONNECT_BACK: 0
+      XDEBUG_REMOTE_HOST: ${DOCKER_MY_IP}
+      XDEBUG_REMOTE_PORT: 9001
+      LOG_STDOUT: /var/www/html/storage/logs/error_log
+      LOG_STDERR: /var/www/html/storage/logs/error_log
+    links:
+      - ips_test_mysql
+    working_dir: /var/www/html
+    container_name: ips_test_nginx
+
+  ips_test_mysql:
+    image: mysql:5.7
+    volumes:
+      - mysql_ips_test:/var/lyb/mysql:rw
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: ips_test
+      MYSQL_USER: ips_test
+      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: secret
+    container_name: ips_test_mysql
+
+volumes:
+  mysql_ips_test:
