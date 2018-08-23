@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\InfusionsoftService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton(InfusionsoftService::class/*, function () {
+            $storage = $this->app->make('filesystem')->disk();
+
+            return new InfusionsoftService($storage);
+        }*/);
     }
 }
