@@ -2,36 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Helpers\InfusionsoftHelper;
-use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\{Collection, ModelNotFoundException};
+use Illuminate\Http\JsonResponse;
 use Response;
+
+use App\{Module, User};
+
+use App\Collections\StartModuleReminderCollection;
+use App\Helpers\StartModuleReminderHelper;
+use App\Services\InfusionsoftService;
+use App\StartModuleReminder;
 
 class ApiController extends Controller
 {
-    // Todo: Module reminder assigner
+    /** @var InfusionsoftService */
+    private $infusionsoftService;
 
-    private function exampleCustomer(){
+    /**
+     * ApiController constructor.
+     *
+     * @param InfusionsoftService $infusionsoftService
+     */
+    public function __construct(InfusionsoftService $infusionsoftService)
+    {
+        $this->infusionsoftService = $infusionsoftService;
+    }
 
-        $infusionsoft = new InfusionsoftHelper();
+    /**
+     * @param string $email
+     *
+     * @return JsonResponse
+     */
+    public function moduleReminderAssignerAction(string $email): JsonResponse
+    {
+        $status = false;
 
-        $uniqid = uniqid();
+        try {
+            $tags = StartModuleReminder::all();
+            $modules = Module::all();
 
-        $infusionsoft->createContact([
-            'Email' => $uniqid.'@test.com',
-            "_Products" => 'ipa,iea'
+            /** @var User $user */
+            $user = User::where('email', $email)->firstOrFail();
+            $contact = $this->infusionsoftService->getContact($email);
+
+            $startModuleReminderHelper = new StartModuleReminderHelper($user, $contact['_Products'], $modules);
+            $nextModule = $startModuleReminderHelper->getNextModule();
+
+            /** @var Collection|StartModuleReminderCollection $tags */
+            $tag = $tags->getTagByModuleName($nextModule->name);
+            $status = $this->infusionsoftService->addTag($contact['Id'], $tag->original_id);
+            $message = $status ? $tag->name : 'Reminder could not be set';
+        } catch (ModelNotFoundException $e) {
+            $message = $e->getMessage();
+        }
+
+        return Response::json([
+            'status' => $status,
+            'message' => $message,
         ]);
-
-        $user = User::create([
-            'name' => 'Test ' . $uniqid,
-            'email' => $uniqid.'@test.com',
-            'password' => bcrypt($uniqid)
-        ]);
-
-        // attach IPA M1-3 & M5
-        $user->completed_modules()->attach(Module::where('course_key', 'ipa')->limit(3)->get());
-        $user->completed_modules()->attach(Module::where('name', 'IPA Module 5')->first());
-
-
-        return $user;
     }
 }

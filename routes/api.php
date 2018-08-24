@@ -13,3 +13,7 @@ use Illuminate\Http\Request;
 |
 */
 
+Route::post('/module_reminder_assigner/{email}', [
+    'as' => 'api.module_reminder_assigner',
+    'uses' => 'ApiController@moduleReminderAssignerAction',
+]);
