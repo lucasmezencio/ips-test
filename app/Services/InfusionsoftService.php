@@ -68,7 +68,7 @@ class InfusionsoftService
         try {
             return Infusionsoft::tags()->all();
         } catch (\Exception $e) {
-            Log::error((string)$e);
+            Log::error((string) $e);
 
             return false;
         }
@@ -91,7 +91,7 @@ class InfusionsoftService
         try {
             return Infusionsoft::contacts('xml')->findByEmail($email, $fields)[0];
         } catch (\Exception $e) {
-            Log::error((string)$e);
+            Log::error((string) $e);
 
             return false;
         }
@@ -108,7 +108,7 @@ class InfusionsoftService
         try {
             return Infusionsoft::contacts('xml')->addToGroup($contact_id, $tag_id);
         } catch (\Exception $e) {
-            Log::error((string)$e);
+            Log::error((string) $e);
 
             return false;
         }
@@ -124,7 +124,7 @@ class InfusionsoftService
         try {
             return Infusionsoft::contacts('xml')->add($data);
         } catch (\Exception $e) {
-            Log::error((string)$e);
+            Log::error((string) $e);
 
             return false;
         }
