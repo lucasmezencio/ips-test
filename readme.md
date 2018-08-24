@@ -6,6 +6,8 @@ To get the application running:
 docker-compose up -d
 ```
 
+Then set `INFUSIONSOFT_REDIRECT_URL` on `.env` file.
+
 To run tests:
 
 ```bash
